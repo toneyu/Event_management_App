@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { CreateEventPayload, EventItem } from '../types/event';
+import { validateEventForm } from '../utils/eventRules';
 
 interface EventFormModalProps {
   isOpen: boolean;
@@ -60,26 +61,20 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
     e.preventDefault();
     setError(null);
 
-    if (!title.trim() || title.trim().length < 2) {
-      setError('Title must be at least 2 characters.');
-      return;
-    }
+    const validation = validateEventForm({
+      title,
+      description,
+      dateInput: dateTimeLocal,
+      maxCapacity,
+      currentRegisteredCount: initialEvent?.registeredCount ?? 0,
+    });
 
-    if (!dateTimeLocal) {
-      setError('Please select a valid event date and time.');
-      return;
-    }
-
-    if (!Number.isInteger(maxCapacity) || maxCapacity < 1) {
-      setError('Max capacity must be a whole number of at least 1.');
+    if (!validation.isValid) {
+      setError(validation.error);
       return;
     }
 
     const parsedDate = new Date(dateTimeLocal);
-    if (Number.isNaN(parsedDate.getTime())) {
-      setError('Invalid date format.');
-      return;
-    }
 
     setSubmitting(true);
     try {

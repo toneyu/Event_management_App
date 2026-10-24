@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { EventItem, RegisterAttendeePayload } from '../types/event';
+import {
+  calculateCapacityPercent,
+  validateRegistration,
+} from '../utils/eventRules';
 
 interface EventDetailPanelProps {
   event: EventItem | null;
@@ -45,19 +49,20 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
     );
   }
 
-  const capacityPercent = Math.min(
-    100,
-    Math.round((event.registeredCount / Math.max(1, event.maxCapacity)) * 100)
+  const capacityPercent = calculateCapacityPercent(
+    event.registeredCount,
+    event.maxCapacity
   );
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
 
-    if (!userName.trim() || !userEmail.trim()) {
+    const validation = validateRegistration(event, userName, userEmail);
+    if (!validation.isValid) {
       setFeedback({
         type: 'error',
-        message: 'Please enter both attendee name and email address.',
+        message: validation.error || 'Invalid registration input.',
       });
       return;
     }

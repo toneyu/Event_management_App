@@ -7,8 +7,12 @@ import {
   EventItem,
   RegisterAttendeePayload,
 } from './types/event';
-
-type FilterMode = 'all' | 'upcoming' | 'full' | 'past';
+import {
+  FilterMode,
+  calculateCapacityPercent,
+  computeEventStats,
+  filterEvents,
+} from './utils/eventRules';
 
 export const App: React.FC = () => {
   const [events, setEvents] = useState<EventItem[]>([]);
@@ -57,38 +61,12 @@ export const App: React.FC = () => {
     [events, selectedEventId]
   );
 
-  const filteredEvents = useMemo(() => {
-    return events.filter((ev) => {
-      if (filterMode === 'upcoming' && ev.isPast) return false;
-      if (filterMode === 'full' && !ev.isFull) return false;
-      if (filterMode === 'past' && !ev.isPast) return false;
+  const filteredEvents = useMemo(
+    () => filterEvents(events, filterMode, searchQuery),
+    [events, filterMode, searchQuery]
+  );
 
-      if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchTitle = ev.title.toLowerCase().includes(q);
-        const matchDesc = ev.description.toLowerCase().includes(q);
-        const matchAttendee = ev.registrations.some(
-          (r) =>
-            r.userName.toLowerCase().includes(q) ||
-            r.userEmail.toLowerCase().includes(q)
-        );
-        return matchTitle || matchDesc || matchAttendee;
-      }
-
-      return true;
-    });
-  }, [events, filterMode, searchQuery]);
-
-  const stats = useMemo(() => {
-    const total = events.length;
-    const upcomingOpen = events.filter((e) => !e.isPast && !e.isFull).length;
-    const fullCount = events.filter((e) => e.isFull).length;
-    const totalRegistrations = events.reduce(
-      (sum, e) => sum + e.registeredCount,
-      0
-    );
-    return { total, upcomingOpen, fullCount, totalRegistrations };
-  }, [events]);
+  const stats = useMemo(() => computeEventStats(events), [events]);
 
   const handleOpenCreate = () => {
     setEditingEvent(null);
@@ -247,11 +225,9 @@ export const App: React.FC = () => {
             <div className="event-card-list">
               {filteredEvents.map((ev) => {
                 const isSelected = ev.id === selectedEventId;
-                const pct = Math.min(
-                  100,
-                  Math.round(
-                    (ev.registeredCount / Math.max(1, ev.maxCapacity)) * 100
-                  )
+                const pct = calculateCapacityPercent(
+                  ev.registeredCount,
+                  ev.maxCapacity
                 );
                 return (
                   <article

@@ -88,6 +88,7 @@ Open a second terminal in the repository root and run:
 ```bash
 cd EventUI
 npm install
+npm test
 npm run dev
 ```
 
