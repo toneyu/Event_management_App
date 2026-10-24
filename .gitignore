@@ -1,0 +1,19 @@
+# .NET build artifacts
+bin/
+obj/
+.vs/
+*.user
+*.suo
+TestResults/
+
+# Node / Vite artifacts
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
