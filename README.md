@@ -3,7 +3,7 @@
 A full-stack Event Management & Attendee Registration application built for the Origin Technical Exercise.
 
 - **Backend (`EventBE`)**: C# / ASP.NET Core (.NET 10) Web API with thread-safe in-memory storage, OpenAPI/Swagger documentation, and xUnit unit tests.
-- **Frontend (`EventUI`)**: React 18 + TypeScript + Vite Single Page Application (SPA).
+- **Frontend (`EventUI`)**: React 18 + TypeScript + Vite Single Page Application (SPA), with unit tests powered by the Node.js native test runner (`node:test` + `node:assert/strict`).
 
 ---
 
@@ -43,8 +43,9 @@ Origin_assessment/
 ├── EventUI/                         # React (Vite + TypeScript) SPA
 │   ├── src/
 │   │   ├── api/eventsApi.ts         # Typed REST client
-│   │   ├── components/              # EventDetailPanel & EventFormModal
+│   │   ├── components/              # EventDetailPanel & EventFormModal (+ tests)
 │   │   ├── types/event.ts           # TypeScript interfaces
+│   │   ├── utils/                   # eventRules.ts & eventRules.test.ts (node:test)
 │   │   └── App.tsx                  # Dashboard, KPI metrics, filtering, & state
 │   └── vite.config.ts
 └── README.md
