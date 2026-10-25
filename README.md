@@ -44,9 +44,10 @@ Origin_assessment/
 │   ├── src/
 │   │   ├── api/eventsApi.ts         # Typed REST client
 │   │   ├── components/              # EventDetailPanel & EventFormModal (+ tests)
+│   │   ├── hooks/                   # useEventsDashboard.ts (state & API handlers)
 │   │   ├── types/event.ts           # TypeScript interfaces
 │   │   ├── utils/                   # eventRules.ts & eventRules.test.ts (node:test)
-│   │   └── App.tsx                  # Dashboard, KPI metrics, filtering, & state
+│   │   └── App.tsx                  # Presentational dashboard layout
 │   └── vite.config.ts
 └── README.md
 ```

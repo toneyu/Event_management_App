@@ -1,115 +1,44 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { eventsApi } from './api/eventsApi';
+import React from 'react';
 import { EventDetailPanel } from './components/EventDetailPanel';
 import { EventFormModal } from './components/EventFormModal';
-import {
-  CreateEventPayload,
-  EventItem,
-  RegisterAttendeePayload,
-} from './types/event';
-import {
-  FilterMode,
-  calculateCapacityPercent,
-  computeEventStats,
-  filterEvents,
-} from './utils/eventRules';
+import { useEventsDashboard } from './hooks/useEventsDashboard';
+import { FilterMode, calculateCapacityPercent } from './utils/eventRules';
 
+const FILTER_TABS: [FilterMode, string][] = [
+  ['all', 'All'],
+  ['upcoming', 'Upcoming'],
+  ['full', 'Full'],
+  ['past', 'Past'],
+];
+
+/**
+ * Presentational root component for the Event Management dashboard.
+ * State and API handlers are managed by `useEventsDashboard`.
+ */
 export const App: React.FC = () => {
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [filterMode, setFilterMode] = useState<FilterMode>('all');
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
-
-  const loadEvents = useCallback(async (preserveSelection = true) => {
-    try {
-      setApiError(null);
-      const data = await eventsApi.getAll();
-      setEvents(data);
-
-      if (data.length > 0) {
-        setSelectedEventId((prev) => {
-          if (preserveSelection && prev && data.some((e) => e.id === prev)) {
-            return prev;
-          }
-          return data[0].id;
-        });
-      } else {
-        setSelectedEventId(null);
-      }
-    } catch (err) {
-      setApiError(
-        err instanceof Error
-          ? err.message
-          : 'Unable to reach the EventBE API server on http://localhost:5150.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadEvents(false);
-  }, [loadEvents]);
-
-  const selectedEvent = useMemo(
-    () => events.find((e) => e.id === selectedEventId) || null,
-    [events, selectedEventId]
-  );
-
-  const filteredEvents = useMemo(
-    () => filterEvents(events, filterMode, searchQuery),
-    [events, filterMode, searchQuery]
-  );
-
-  const stats = useMemo(() => computeEventStats(events), [events]);
-
-  const handleOpenCreate = () => {
-    setEditingEvent(null);
-    setIsModalOpen(true);
-  };
-
-  const handleOpenEdit = (event: EventItem) => {
-    setEditingEvent(event);
-    setIsModalOpen(true);
-  };
-
-  const handleSaveEvent = async (payload: CreateEventPayload) => {
-    if (editingEvent) {
-      const updated = await eventsApi.update(editingEvent.id, payload);
-      await loadEvents(true);
-      setSelectedEventId(updated.id);
-    } else {
-      const created = await eventsApi.create(payload);
-      await loadEvents(false);
-      setSelectedEventId(created.id);
-    }
-  };
-
-  const handleDeleteEvent = async (eventId: string) => {
-    await eventsApi.remove(eventId);
-    await loadEvents(false);
-  };
-
-  const handleRegisterAttendee = async (
-    eventId: string,
-    payload: RegisterAttendeePayload
-  ) => {
-    await eventsApi.registerAttendee(eventId, payload);
-    await loadEvents(true);
-  };
-
-  const handleUnregisterAttendee = async (
-    eventId: string,
-    userEmail: string
-  ) => {
-    await eventsApi.unregisterAttendee(eventId, userEmail);
-    await loadEvents(true);
-  };
+  const {
+    selectedEventId,
+    selectedEvent,
+    filteredEvents,
+    stats,
+    loading,
+    apiError,
+    filterMode,
+    searchQuery,
+    isModalOpen,
+    editingEvent,
+    setSelectedEventId,
+    setFilterMode,
+    setSearchQuery,
+    loadEvents,
+    handleOpenCreate,
+    handleOpenEdit,
+    handleCloseModal,
+    handleSaveEvent,
+    handleDeleteEvent,
+    handleRegisterAttendee,
+    handleUnregisterAttendee,
+  } = useEventsDashboard();
 
   return (
     <div className="app-shell">
@@ -186,14 +115,7 @@ export const App: React.FC = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
             <div className="filter-tabs" role="tablist">
-              {(
-                [
-                  ['all', 'All'],
-                  ['upcoming', 'Upcoming'],
-                  ['full', 'Full'],
-                  ['past', 'Past'],
-                ] as [FilterMode, string][]
-              ).map(([mode, label]) => (
+              {FILTER_TABS.map(([mode, label]) => (
                 <button
                   key={mode}
                   type="button"
@@ -291,7 +213,7 @@ export const App: React.FC = () => {
       <EventFormModal
         isOpen={isModalOpen}
         initialEvent={editingEvent}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleCloseModal}
         onSubmit={handleSaveEvent}
       />
     </div>
@@ -299,4 +221,3 @@ export const App: React.FC = () => {
 };
 
 export default App;
-
