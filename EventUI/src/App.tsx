@@ -55,13 +55,6 @@ export const App: React.FC = () => {
         <div className="nav-actions">
           <button
             type="button"
-            className="btn btn-secondary"
-            onClick={() => loadEvents(true)}
-          >
-            ↻ Refresh
-          </button>
-          <button
-            type="button"
             className="btn btn-primary"
             onClick={handleOpenCreate}
           >
