@@ -1,5 +1,7 @@
 # Origin Technical Exercise — Event Management API & SPA
 
+**Author:** Tone Yu *(Developed with the assistance of Antigravity)*
+
 A full-stack Event Management & Attendee Registration application built for the Origin Technical Exercise.
 
 - **Backend (`EventBE`)**: C# / ASP.NET Core (.NET 10) Web API with thread-safe in-memory storage, OpenAPI/Swagger documentation, and xUnit unit tests.
