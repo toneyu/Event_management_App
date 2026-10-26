@@ -103,7 +103,7 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
       >
         <div className="modal-header">
           <h2 id="modal-title">
-            {isEditing ? 'Edit Event' : 'Create New Event'}
+            {isEditing ? 'Update Event' : 'Create New Event'}
           </h2>
           <button
             type="button"

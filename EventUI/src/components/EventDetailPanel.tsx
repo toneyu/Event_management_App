@@ -143,7 +143,7 @@ export const EventDetailPanel: React.FC<EventDetailPanelProps> = ({
               className="btn btn-secondary btn-sm"
               onClick={() => onEdit(event)}
             >
-              Edit Event
+              Update Event
             </button>
             <button
               type="button"
